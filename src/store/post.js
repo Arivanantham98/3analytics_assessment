@@ -6,6 +6,7 @@ const slice = createSlice({
   initialState: {
     loading: false,
     posts: [],
+    pageCount: 0,
     post: [],
     comments: [],
   },
@@ -13,6 +14,9 @@ const slice = createSlice({
     getAllPosts: (state, action) => {
       state.posts = action.payload;
       state.loading = true;
+    },
+    getAllPostsNumber: (state, action) => {
+      state.pageCount = parseInt(action.payload);
     },
     getPost: (state, action) => {
       state.post = action.payload;
@@ -27,7 +31,7 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-const { getAllPosts, getPost, getComments } = slice.actions;
+const { getAllPosts, getAllPostsNumber, getPost, getComments } = slice.actions;
 
 export const fetchPosts =
   (pageNumber = 1) =>
@@ -36,7 +40,9 @@ export const fetchPosts =
       let response = await axios.get(
         `https://jsonplaceholder.typicode.com/posts?_page=${pageNumber}&_limit=20`
       );
+      const total = response.headers.get("x-total-count");
       dispatch(getAllPosts(response.data));
+      dispatch(getAllPostsNumber(total));
     } catch (e) {
       return console.error(e.message);
     }

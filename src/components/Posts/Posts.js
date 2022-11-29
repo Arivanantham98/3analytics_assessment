@@ -7,13 +7,18 @@ import { useNavigate } from "react-router-dom";
 
 function Posts() {
   const dispatch = useDispatch();
-  const { posts } = useSelector((state) => state.post);
+  const [pages, setPages] = useState(0);
+  const { posts, pageCount } = useSelector((state) => state.post);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchParam] = useState(["title", "body"]);
 
   useEffect(() => {
     dispatch(fetchPosts());
   }, []);
+
+  useEffect(() => {
+    setPages(Math.ceil(pageCount / 20));
+  }, [pageCount]);
 
   const handlePageClick = (e) => {
     dispatch(fetchPosts(e.selected + 1));
@@ -55,7 +60,9 @@ function Posts() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <div className="columns is-multiline is-justify-content-center">{allPost}</div>
+      <div className="columns is-multiline is-justify-content-center">
+        {allPost}
+      </div>
       <div className="main">
         <div className="paginate">
           <ReactPaginate
@@ -63,9 +70,9 @@ function Posts() {
             nextLabel={"Next"}
             breakLabel={"..."}
             breakClassName={"break-me"}
-            pageCount={10}
+            pageCount={pages}
             marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
+            pageRangeDisplayed={3}
             onPageChange={handlePageClick}
             containerClassName={"pagination"}
             activeClassName={"active"}
